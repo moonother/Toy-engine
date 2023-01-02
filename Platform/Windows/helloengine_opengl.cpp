@@ -1,12 +1,11 @@
-﻿//include the basic windows header file
-#include <Windows.h>
-#include <minwindef.h>
+// include the basic windows header file
+#include <windows.h>
 #include <windowsx.h>
 #include <tchar.h>
 #include <GL/gl.h>
 #include <fstream>
 
-#include "math.h"
+#include "vectormath.h"
 
 using namespace std;
 
@@ -116,11 +115,10 @@ PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB;
 PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
 PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
 
-
 typedef struct VertexType
 {
-       VectorType position;
-       VectorType color;
+    VectorType position;
+    VectorType color;
 } VertexType;
 
 HDC     g_deviceContext = 0;
@@ -205,7 +203,7 @@ bool InitializeOpenGL(HWND hwnd, int screenWidth, int screenHeight, float screen
         // Null terminate the attribute list.
         attributeListInt[18] = 0;
 
-
+        
         // Query for a pixel format that fits the attributes we want.
         result = wglChoosePixelFormatARB(g_deviceContext, attributeListInt, NULL, 1, pixelFormat, &formatCount);
         if(result != 1)
@@ -256,15 +254,15 @@ bool InitializeOpenGL(HWND hwnd, int screenWidth, int screenHeight, float screen
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
 
-               // Initialize the world/model matrix to the identity matrix.
-               BuildIdentityMatrix(g_worldMatrix);
+        // Initialize the world/model matrix to the identity matrix.
+        BuildIdentityMatrix(g_worldMatrix);
 
-               // Set the field of view and screen aspect ratio.
-               fieldOfView = PI / 4.0f;
-               screenAspect = (float)screenWidth / (float)screenHeight;
+        // Set the field of view and screen aspect ratio.
+        fieldOfView = PI / 4.0f;
+        screenAspect = (float)screenWidth / (float)screenHeight;
 
-               // Build the perspective projection matrix.
-               BuildPerspectiveFovLHMatrix(g_projectionMatrix, fieldOfView, screenAspect, screenNear, screenDepth);
+        // Build the perspective projection matrix.
+        BuildPerspectiveFovLHMatrix(g_projectionMatrix, fieldOfView, screenAspect, screenNear, screenDepth);
 
         // Get the name of the video card.
         vendorString = (char*)glGetString(GL_VENDOR);
@@ -361,7 +359,7 @@ bool LoadExtensionList()
         {
                 return false;
         }
-
+        
         glDeleteProgram = (PFNGLDELETEPROGRAMPROC)wglGetProcAddress("glDeleteProgram");
         if(!glDeleteProgram)
         {
@@ -538,7 +536,6 @@ void GetVideoCardInfo(char* cardName)
         strcpy_s(cardName, 128, g_videoCardDescription);
         return;
 }
-
 
 bool InitializeExtensions(HWND hwnd)
 {
@@ -872,15 +869,15 @@ bool SetShaderParameters(float* worldMatrix, float* viewMatrix, float* projectio
 bool InitializeBuffers()
 {
         VertexType vertices[] = {
-                       {{  1.0f,  1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f }},
-                       {{  1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f }},
-                       {{ -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f }},
-                       {{ -1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f, 0.0f }},
-                       {{  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f, 1.0f }},
-                       {{  1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f, 1.0f }},
-                       {{ -1.0f, -1.0f, -1.0f }, { 0.5f, 1.0f, 0.5f }},
-                       {{ -1.0f, -1.0f,  1.0f }, { 1.0f, 0.5f, 1.0f }},
-               };
+            {{  1.0f,  1.0f,  1.0f }, { 1.0f, 0.0f, 0.0f }},
+            {{  1.0f,  1.0f, -1.0f }, { 0.0f, 1.0f, 0.0f }},
+            {{ -1.0f,  1.0f, -1.0f }, { 0.0f, 0.0f, 1.0f }},
+            {{ -1.0f,  1.0f,  1.0f }, { 1.0f, 1.0f, 0.0f }},
+            {{  1.0f, -1.0f,  1.0f }, { 1.0f, 0.0f, 1.0f }},
+            {{  1.0f, -1.0f, -1.0f }, { 0.0f, 1.0f, 1.0f }},
+            {{ -1.0f, -1.0f, -1.0f }, { 0.5f, 1.0f, 0.5f }},
+            {{ -1.0f, -1.0f,  1.0f }, { 1.0f, 0.5f, 1.0f }},
+        };
         uint16_t indices[] = { 1, 2, 3, 3, 2, 6, 6, 7, 3, 3, 0, 1, 0, 3, 7, 7, 6, 4, 4, 6, 5, 0, 7, 4, 1, 0, 4, 1, 4, 5, 2, 1, 5, 2, 5, 6 };
 
         // Set the number of vertices in the vertex array.
@@ -1001,26 +998,26 @@ void CalculateCameraPosition()
 
 void Draw()
 {
-       static float rotateAngle = 0.0f;
+    static float rotateAngle = 0.0f;
 
     // Set the color to clear the screen to.
     glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
     // Clear the screen and depth buffer.
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-       // Update world matrix to rotate the model
-       rotateAngle += PI / 120;
-       float rotationMatrixY[16];
-       float rotationMatrixZ[16];
-       MatrixRotationY(rotationMatrixY, rotateAngle);
-       MatrixRotationZ(rotationMatrixZ, rotateAngle);
-       MatrixMultiply(g_worldMatrix, rotationMatrixZ, rotationMatrixY);
+    // Update world matrix to rotate the model
+    rotateAngle += PI / 120;
+    float rotationMatrixY[16];
+    float rotationMatrixZ[16];
+    MatrixRotationY(rotationMatrixY, rotateAngle);
+    MatrixRotationZ(rotationMatrixZ, rotateAngle);
+    MatrixMultiply(g_worldMatrix, rotationMatrixZ, rotationMatrixY);
 
     // Generate the view matrix based on the camera's position.
-       CalculateCameraPosition();
+    CalculateCameraPosition();
 
     // Set the color shader as the current shader program and set the matrices that it will use for rendering.
-       glUseProgram(g_shaderProgram);
+    glUseProgram(g_shaderProgram);
     SetShaderParameters(g_worldMatrix, g_viewMatrix, g_projectionMatrix);
 
     // Render the model using the color shader.
@@ -1029,16 +1026,18 @@ void Draw()
     // Present the back buffer to the screen since rendering is complete.
     SwapBuffers(g_deviceContext);
 }
-//the windowProc function prototype
-LRESULT CALLBACK WindowProc(HWND hwnd,
-                            UINT message,
-                            WPARAM wParam,
-                            LPARAM lParam);
+
+// the WindowProc function prototype
+LRESULT CALLBACK WindowProc(HWND hWnd,
+                         UINT message,
+                         WPARAM wParam,
+                         LPARAM lParam);
+
 // the entry point for any Windows program
 int WINAPI WinMain(HINSTANCE hInstance,
-                   HINSTANCE hPrevInstance,
-                   LPTSTR lpCmdLine,
-                   int nCmdShow)
+    HINSTANCE hPrevInstance,
+    LPTSTR lpCmdLine,
+    int nCmdShow)
 {
     // the handle for the window, filled by a function
     HWND hWnd;
@@ -1074,7 +1073,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
                           hInstance,    // application handle
                           NULL);    // used with multiple windows, NULL
 
-                                                                       // Don't show the window.
+                                    // Don't show the window.
     ShowWindow(hWnd, SW_HIDE);
 
     InitializeExtensions(hWnd);
@@ -1099,28 +1098,30 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
     // create the window and use the result as the handle
     hWnd = CreateWindowEx(WS_EX_APPWINDOW,
-                          _T("Hello, Engine!"),    // name of the window class
-                          _T("Hello, Engine!"),   // title of the window
-                          WS_OVERLAPPEDWINDOW,    // window style
-                          300,    // x-position of the window
-                          300,    // y-position of the window
-                          960,    // width of the window
-                          540,    // height of the window
-                          NULL,    // we have no parent window, NULL
-                          NULL,    // we aren't using menus, NULL
-                          hInstance,    // application handle
-                          NULL);    // used with multiple windows, NULL
+        _T("Hello, Engine!"),    // name of the window class
+        _T("Hello, Engine!"),   // title of the window
+        WS_OVERLAPPEDWINDOW,    // window style
+        300,    // x-position of the window
+        300,    // y-position of the window
+        960,    // width of the window
+        540,    // height of the window
+        NULL,    // we have no parent window, NULL
+        NULL,    // we aren't using menus, NULL
+        hInstance,    // application handle
+        NULL);    // used with multiple windows, NULL
 
     InitializeOpenGL(hWnd, 960, 540, SCREEN_DEPTH, SCREEN_NEAR, true);
-    
-    //display the window on the screen
-    ShowWindow(hWnd,nCmdShow);
+
+    // display the window on the screen
+    ShowWindow(hWnd, nCmdShow);
     SetForegroundWindow(hWnd);
 
     InitializeShader(hWnd, VS_SHADER_SOURCE_FILE, PS_SHADER_SOURCE_FILE);
     InitializeBuffers();
-    
-    //enter the main loop:
+
+    // enter the main loop:
+
+    // this struct holds Windows event messages
     MSG msg;
 
     // wait for the next message in the queue, store the result in 'msg'
@@ -1147,21 +1148,24 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
     // sort through and find what code to run for the message given
     switch(message)
     {
-        case WM_PAINT:
-            {
-                Draw();
-                return 0;
-            } break;
-        
+    case WM_CREATE:
+        {
+        }
+    case WM_PAINT:
+        {
+          Draw();
+          return 0;
+        }
         // this message is read when the window is closed
-        case WM_DESTROY:
-            {
+    case WM_DESTROY:
+        {
                 // close the application entirely
-                PostQuitMessage(0);
-                return 0;
-            } break;
+           PostQuitMessage(0);
+           return 0;
+        }
     }
 
     // Handle any messages the switch statement didn't
     return DefWindowProc (hWnd, message, wParam, lParam);
 }
+

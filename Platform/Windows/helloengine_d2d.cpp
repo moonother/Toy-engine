@@ -1,15 +1,14 @@
-﻿//include the basic windows header file
-#include <Windows.h>
-#include <minwindef.h>
+// include the basic windows header file
+#include <windows.h>
 #include <windowsx.h>
 #include <tchar.h>
 
 #include <d2d1.h>
 
-ID2D1Factory           *pFactory = nullptr;
-ID2D1HwndRenderTarget  *pRenderTarget = nullptr;
-ID2D1SolidColorBrush   *pLightSlateGrayBrush = nullptr;
-ID2D1SolidColorBrush   *pCornflowerBlueBrush = nullptr;
+ID2D1Factory			*pFactory = nullptr;
+ID2D1HwndRenderTarget	*pRenderTarget = nullptr;
+ID2D1SolidColorBrush	*pLightSlateGrayBrush = nullptr;
+ID2D1SolidColorBrush	*pCornflowerBlueBrush = nullptr;
 
 template<class T>
 inline void SafeRelease(T **ppInterfaceToRelease)
@@ -61,11 +60,12 @@ void DiscardGraphicsResources()
 }
 
 
-//the windowProc function prototype
-LRESULT CALLBACK WindowProc(HWND hwnd,
-                            UINT message,
-                            WPARAM wParam,
-                            LPARAM lParam);
+// the WindowProc function prototype
+LRESULT CALLBACK WindowProc(HWND hWnd,
+                         UINT message,
+                         WPARAM wParam,
+                         LPARAM lParam);
+
 // the entry point for any Windows program
 int WINAPI WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
@@ -98,7 +98,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
     // create the window and use the result as the handle
     hWnd = CreateWindowEx(0,
                           _T("WindowClass1"),    // name of the window class
-                          _T("Hello, Engine!"),   // title of the window
+                          _T("Hello, Engine![Direct 2D]"),   // title of the window
                           WS_OVERLAPPEDWINDOW,    // window style
                           100,    // x-position of the window
                           100,    // y-position of the window
@@ -109,10 +109,12 @@ int WINAPI WinMain(HINSTANCE hInstance,
                           hInstance,    // application handle
                           NULL);    // used with multiple windows, NULL
 
-    //display the window on the screen
-    ShowWindow(hWnd,nCmdShow);
+    // display the window on the screen
+    ShowWindow(hWnd, nCmdShow);
 
-    //enter the main loop:
+    // enter the main loop:
+
+    // this struct holds Windows event messages
     MSG msg;
 
     // wait for the next message in the queue, store the result in 'msg'
@@ -141,122 +143,120 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
     // sort through and find what code to run for the message given
     switch(message)
     {
-        
-        
-       case WM_CREATE:
-               if (FAILED(D2D1CreateFactory(
-                                       D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactory)))
-               {
-                       result = -1; // Fail CreateWindowEx.
-                       return result;
-               }
-               wasHandled = true;
-        result = 0;
-        break;
-        
-        case WM_PAINT:
-            {
-                HRESULT hr = CreateGraphicsResources(hWnd);
-                if (SUCCEEDED(hr))
+	case WM_CREATE:
+		if (FAILED(D2D1CreateFactory(
+					D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactory)))
+		{
+			result = -1; // Fail CreateWindowEx.
+		}
+		wasHandled = true;
+        result = 1;
+        break;	
+
+	case WM_PAINT:
+	    {
+			HRESULT hr = CreateGraphicsResources(hWnd);
+			if (SUCCEEDED(hr))
+			{
+				PAINTSTRUCT ps;
+				BeginPaint(hWnd, &ps);
+
+				// start build GPU draw command
+				pRenderTarget->BeginDraw();
+
+				// clear the background with white color
+				pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
+
+                // retrieve the size of drawing area
+                D2D1_SIZE_F rtSize = pRenderTarget->GetSize();
+
+                // draw a grid background.
+                int width = static_cast<int>(rtSize.width);
+                int height = static_cast<int>(rtSize.height);
+
+                for (int x = 0; x < width; x += 10)
                 {
-                    PAINTSTRUCT ps;
-                    BeginPaint(hWnd, &ps);
-
-                    // start build GPU draw command
-                    pRenderTarget->BeginDraw();
-
-                    // clear the background with white color
-                    pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
-
-                    // retrieve the size of drawing area
-                    D2D1_SIZE_F rtSize = pRenderTarget->GetSize();
-
-                    // draw a grid background.
-                    int width = static_cast<int>(rtSize.width);
-                    int height = static_cast<int>(rtSize.height);
-
-                    for (int x = 0; x < width; x += 10)
-                    {
-                        pRenderTarget->DrawLine(
-                            D2D1::Point2F(static_cast<FLOAT>(x), 0.0f),
-                            D2D1::Point2F(static_cast<FLOAT>(x), rtSize.height),
-                            pLightSlateGrayBrush,
-                            0.5f
-                            );
-                    }
-
-                    for (int y = 0; y < height; y += 10)
-                    {
-                        pRenderTarget->DrawLine(
-                            D2D1::Point2F(0.0f, static_cast<FLOAT>(y)),
-                            D2D1::Point2F(rtSize.width, static_cast<FLOAT>(y)),
-                            pLightSlateGrayBrush,
-                            0.5f
+                    pRenderTarget->DrawLine(
+                        D2D1::Point2F(static_cast<FLOAT>(x), 0.0f),
+                        D2D1::Point2F(static_cast<FLOAT>(x), rtSize.height),
+                        pLightSlateGrayBrush,
+                        0.5f
                         );
-                    }
-
-                    // draw two rectangles
-                    D2D1_RECT_F rectangle1 = D2D1::RectF(
-                    rtSize.width/2 - 50.0f,
-                    rtSize.height/2 - 50.0f,
-                    rtSize.width/2 + 50.0f,
-                    rtSize.height/2 + 50.0f
-                    );
-
-                    D2D1_RECT_F rectangle2 = D2D1::RectF(
-                    rtSize.width/2 - 100.0f,
-                    rtSize.height/2 - 100.0f,
-                    rtSize.width/2 + 100.0f,
-                    rtSize.height/2 + 100.0f
-                    );
-
-                    // draw a filled rectangle
-                    pRenderTarget->FillRectangle(&rectangle1, pLightSlateGrayBrush);
-
-                    // draw a outline only rectangle
-                    pRenderTarget->DrawRectangle(&rectangle2, pCornflowerBlueBrush);
-
-                    // end GPU draw command building
-                    hr = pRenderTarget->EndDraw();
-                    if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET)
-                    {
-                            DiscardGraphicsResources();
-                    }
-
-                    EndPaint(hWnd, &ps);
                 }
-            }
-                wasHandled = true;
-            break;
 
-        case WM_SIZE:
-                if (pRenderTarget != nullptr)
+                for (int y = 0; y < height; y += 10)
                 {
-                        RECT rc;
-                        GetClientRect(hWnd, &rc);
-
-                        D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top);
-
-                        pRenderTarget->Resize(size);
+                    pRenderTarget->DrawLine(
+                        D2D1::Point2F(0.0f, static_cast<FLOAT>(y)),
+                        D2D1::Point2F(rtSize.width, static_cast<FLOAT>(y)),
+                        pLightSlateGrayBrush,
+                        0.5f
+                        );
                 }
-                wasHandled = true;
-            break;
 
-        case WM_DESTROY:
-                DiscardGraphicsResources();
-                if (pFactory) {pFactory->Release(); pFactory=nullptr; }
-                PostQuitMessage(0);
-                result = 0;
-                wasHandled = true;
-            break;
+                // draw two rectangles
+                D2D1_RECT_F rectangle1 = D2D1::RectF(
+                     rtSize.width/2 - 50.0f,
+                     rtSize.height/2 - 50.0f,
+                     rtSize.width/2 + 50.0f,
+                     rtSize.height/2 + 50.0f
+                     );
 
-        case WM_DISPLAYCHANGE:
-            InvalidateRect(hWnd, nullptr, false);
-            wasHandled = true;
-            break;
+                 D2D1_RECT_F rectangle2 = D2D1::RectF(
+                     rtSize.width/2 - 100.0f,
+                     rtSize.height/2 - 100.0f,
+                     rtSize.width/2 + 100.0f,
+                     rtSize.height/2 + 100.0f
+                     );
+
+                // draw a filled rectangle
+                pRenderTarget->FillRectangle(&rectangle1, pLightSlateGrayBrush);
+
+                // draw a outline only rectangle
+                pRenderTarget->DrawRectangle(&rectangle2, pCornflowerBlueBrush);
+
+				// end GPU draw command building
+				hr = pRenderTarget->EndDraw();
+				if (FAILED(hr) || hr == D2DERR_RECREATE_TARGET)
+				{
+					DiscardGraphicsResources();
+				}
+
+				EndPaint(hWnd, &ps);
+			}
+	    }
+		wasHandled = true;
+        break;
+
+	case WM_SIZE:
+		if (pRenderTarget != nullptr)
+		{
+			RECT rc;
+			GetClientRect(hWnd, &rc);
+
+			D2D1_SIZE_U size = D2D1::SizeU(rc.right - rc.left, rc.bottom - rc.top);
+
+			pRenderTarget->Resize(size);
+		}
+		wasHandled = true;
+        break;
+
+	case WM_DESTROY:
+		DiscardGraphicsResources();
+		if (pFactory) {pFactory->Release(); pFactory=nullptr; }
+		PostQuitMessage(0);
+        result = 1;
+		wasHandled = true;
+        break;
+
+    case WM_DISPLAYCHANGE:
+        InvalidateRect(hWnd, nullptr, false);
+        wasHandled = true;
+        break;
     }
-    // Handle any messages the switch statement didn't
 
+    // Handle any messages the switch statement didn't
     if (!wasHandled) { result = DefWindowProc (hWnd, message, wParam, lParam); }
-    return result;    
+    return result;
 }
+

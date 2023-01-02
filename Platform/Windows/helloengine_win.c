@@ -1,14 +1,14 @@
-﻿//include the basic windows header file
-#include <Windows.h>
-#include <minwindef.h>
+// include the basic windows header file
+#include <windows.h>
 #include <windowsx.h>
 #include <tchar.h>
 
-//the windowProc function prototype
-LRESULT CALLBACK WindowProc(HWND hwnd,
-                            UINT message,
-                            WPARAM wParam,
-                            LPARAM lParam);
+// the WindowProc function prototype
+LRESULT CALLBACK WindowProc(HWND hWnd,
+                         UINT message,
+                         WPARAM wParam,
+                         LPARAM lParam);
+
 // the entry point for any Windows program
 int WINAPI WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
@@ -49,10 +49,12 @@ int WINAPI WinMain(HINSTANCE hInstance,
                           hInstance,    // application handle
                           NULL);    // used with multiple windows, NULL
 
-    //display the window on the screen
-    ShowWindow(hWnd,nCmdShow);
+    // display the window on the screen
+    ShowWindow(hWnd, nCmdShow);
 
-    //enter the main loop:
+    // enter the main loop:
+
+    // this struct holds Windows event messages
     MSG msg;
 
     // wait for the next message in the queue, store the result in 'msg'
@@ -75,18 +77,17 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
     // sort through and find what code to run for the message given
     switch(message)
     {
-        case WM_PAINT:
-            {
-                PAINTSTRUCT ps;
-                HDC hdc = BeginPaint(hWnd, &ps);
-                RECT rec = { 20, 20, 60, 80 };
-                HBRUSH brush = (HBRUSH) GetStockObject(BLACK_BRUSH);
+	case WM_PAINT:
+	    {
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(hWnd, &ps);
+		RECT rec = { 20, 20, 60, 80 };
+		HBRUSH brush = (HBRUSH) GetStockObject(BLACK_BRUSH);
 
-                FillRect(hdc, &rec, brush);
+		FillRect(hdc, &rec, brush);
 
-                EndPaint(hWnd, &ps);
-            } break;
-        
+		EndPaint(hWnd, &ps);
+	    } break;
         // this message is read when the window is closed
         case WM_DESTROY:
             {
@@ -99,3 +100,4 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
     // Handle any messages the switch statement didn't
     return DefWindowProc (hWnd, message, wParam, lParam);
 }
+

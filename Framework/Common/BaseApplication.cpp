@@ -1,26 +1,39 @@
-﻿#include "BaseApplication.hpp"
+#include "BaseApplication.hpp"
+#include <iostream>
 
-//Parase command line,read configuration,initialize all sub modules
+using namespace My;
+
+bool My::BaseApplication::m_bQuit = false;
+
+My::BaseApplication::BaseApplication(GfxConfiguration& cfg)
+    :m_Config(cfg)
+{
+}
+
+// Parse command line, read configuration, initialize all sub modules
 int My::BaseApplication::Initialize()
 {
-    m_bQuit = false;
+    int result = 0;
 
-    return 0;
+    std::wcout << m_Config;
+
+	return result;
 }
 
-//Finalize all sub modules and clean up all runtime temporary files.
+
+// Finalize all sub modules and clean up all runtime temporary files.
 void My::BaseApplication::Finalize()
 {
-
 }
 
-//One cycle of the main loop
+
+// One cycle of the main loop
 void My::BaseApplication::Tick()
 {
-
 }
 
 bool My::BaseApplication::IsQuit()
 {
-    return m_bQuit;
+	return m_bQuit;
 }
+

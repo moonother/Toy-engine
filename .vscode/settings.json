@@ -1,0 +1,17 @@
+{
+    "C_Cpp.errorSquiggles": "enabled",
+    "C_Cpp.clang_format_path": "C:/Program Files/LLVM/bin/clang-formate.exe",
+    "clang.executable": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\Llvm\\x64\\bin\\clang.exe",
+    "files.associations": {
+        "xstring": "cpp",
+        "cwchar": "cpp"
+    },
+    "commentTranslate.source": "Google",
+    "commentTranslate.hover.enabled": true,
+    "commentTranslate.multiLineMerge": false,
+    "launch": {
+    
+        "configurations": [],
+        "compounds": []
+    }
+}

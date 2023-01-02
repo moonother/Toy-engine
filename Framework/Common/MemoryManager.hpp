@@ -1,5 +1,5 @@
 #pragma once
-#include "../Interface/IRuntimeModule.hpp"
+#include "IRuntimeModule.hpp"
 #include "Allocator.hpp"
 #include <new>
 

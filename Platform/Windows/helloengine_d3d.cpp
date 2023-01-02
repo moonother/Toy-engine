@@ -1,10 +1,9 @@
-﻿//include the basic windows header file
-#include <Windows.h>
-#include <minwindef.h>
+// include the basic windows header file
+#include <windows.h>
 #include <windowsx.h>
 #include <tchar.h>
 #include <stdint.h>
-#include <d2d1.h>
+
 #include <d3d11.h>
 #include <d3d11_1.h>
 #include <d3dcompiler.h>
@@ -99,11 +98,14 @@ void InitPipeline() {
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
+
     g_pDev->CreateInputLayout(ied, 2, VS->GetBufferPointer(), VS->GetBufferSize(), &g_pLayout);
     g_pDevcon->IASetInputLayout(g_pLayout);
+
     VS->Release();
     PS->Release();
 }
+
 // this is the function that creates the shape to render
 void InitGraphics() {
     // create a triangle using the VERTEX struct
@@ -113,9 +115,12 @@ void InitGraphics() {
         {XMFLOAT3(0.45f, -0.5, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f)},
         {XMFLOAT3(-0.45f, -0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f)}
     };
+
+
     // create the vertex buffer
     D3D11_BUFFER_DESC bd;
     ZeroMemory(&bd, sizeof(bd));
+
     bd.Usage = D3D11_USAGE_DYNAMIC;                // write access access by CPU and GPU
     bd.ByteWidth = sizeof(VERTEX) * 3;             // size is the VERTEX struct * 3
     bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;       // use as a vertex buffer
@@ -131,7 +136,6 @@ void InitGraphics() {
 }
 
 // this function prepare graphic resources for use
-
 HRESULT CreateGraphicsResources(HWND hWnd)
 {
     HRESULT hr = S_OK;
@@ -243,11 +247,12 @@ void RenderFrame()
     g_pSwapchain->Present(0, 0);
 }
 
-//the windowProc function prototype
-LRESULT CALLBACK WindowProc(HWND hwnd,
-                            UINT message,
-                            WPARAM wParam,
-                            LPARAM lParam);
+// the WindowProc function prototype
+LRESULT CALLBACK WindowProc(HWND hWnd,
+                         UINT message,
+                         WPARAM wParam,
+                         LPARAM lParam);
+
 // the entry point for any Windows program
 int WINAPI WinMain(HINSTANCE hInstance,
                    HINSTANCE hPrevInstance,
@@ -258,7 +263,6 @@ int WINAPI WinMain(HINSTANCE hInstance,
     HWND hWnd;
     // this struct holds information for the window class
     WNDCLASSEX wc;
-
 
     // clear out the window class for use
     ZeroMemory(&wc, sizeof(WNDCLASSEX));
@@ -277,23 +281,24 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
     // create the window and use the result as the handle
     hWnd = CreateWindowEx(0,
-                        _T("WindowClass1"),                   // name of the window class
-                        _T("Hello, Engine![Direct 3D]"),      // title of the window
-                        WS_OVERLAPPEDWINDOW,                  // window style
-                        100,                                  // x-position of the window
-                        100,                                  // y-position of the window
-                        SCREEN_WIDTH,                         // width of the window
-                        SCREEN_HEIGHT,                        // height of the window
-                        NULL,                                 // we have no parent window, NULL
-                        NULL,                                 // we aren't using menus, NULL
-                        hInstance,                            // application handle
-                        NULL);                                // used with multiple windows, NULL
+                          _T("WindowClass1"),                   // name of the window class
+                          _T("Hello, Engine![Direct 3D]"),      // title of the window
+                          WS_OVERLAPPEDWINDOW,                  // window style
+                          100,                                  // x-position of the window
+                          100,                                  // y-position of the window
+                          SCREEN_WIDTH,                         // width of the window
+                          SCREEN_HEIGHT,                        // height of the window
+                          NULL,                                 // we have no parent window, NULL
+                          NULL,                                 // we aren't using menus, NULL
+                          hInstance,                            // application handle
+                          NULL);                                // used with multiple windows, NULL
 
+    // display the window on the screen
+    ShowWindow(hWnd, nCmdShow);
 
-    //display the window on the screen
-    ShowWindow(hWnd,nCmdShow);
+    // enter the main loop:
 
-    //enter the main loop:
+    // this struct holds Windows event messages
     MSG msg;
 
     // wait for the next message in the queue, store the result in 'msg'
@@ -319,39 +324,39 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
     // sort through and find what code to run for the message given
     switch(message)
     {
-        
-        
-       case WM_CREATE:
-               wasHandled = true;
+	case WM_CREATE:
+		wasHandled = true;
+        break;	
+
+	case WM_PAINT:
+		result = CreateGraphicsResources(hWnd);
+        	RenderFrame();
+		wasHandled = true;
         break;
-        
-        case WM_PAINT:
-                result = CreateGraphicsResources(hWnd);
-                RenderFrame();
-                wasHandled = true;
-            break;
 
-        case WM_SIZE:
-                if (g_pSwapchain != nullptr)
-                {
-                    DiscardGraphicsResources();
-                }
-                wasHandled = true;
-            break;
+	case WM_SIZE:
+		if (g_pSwapchain != nullptr)
+		{
+		    DiscardGraphicsResources();
+			g_pSwapchain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH);
+		}
+		wasHandled = true;
+        break;
 
-        case WM_DESTROY:
-                DiscardGraphicsResources();
-                PostQuitMessage(0);
-                wasHandled = true;
-            break;
+	case WM_DESTROY:
+		DiscardGraphicsResources();
+		PostQuitMessage(0);
+		wasHandled = true;
+        break;
 
-        case WM_DISPLAYCHANGE:
-            InvalidateRect(hWnd, nullptr, false);
-            wasHandled = true;
-            break;
+    case WM_DISPLAYCHANGE:
+        InvalidateRect(hWnd, nullptr, false);
+        wasHandled = true;
+        break;
     }
-    // Handle any messages the switch statement didn't
 
+    // Handle any messages the switch statement didn't
     if (!wasHandled) { result = DefWindowProc (hWnd, message, wParam, lParam); }
-    return result;    
+    return result;
 }
+
